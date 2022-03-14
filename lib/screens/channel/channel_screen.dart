@@ -23,7 +23,7 @@ class ChannelScreen extends StatefulWidget {
 }
 
 class _ChannelScreenState extends State<ChannelScreen>
-    with PushHandler, WidgetsBindingObserver {
+    with PushHandler, WidgetsBindingObserver, AutomaticKeepAliveClientMixin {
   late ChannelViewModel model;
   bool channelLoaded = false;
 
@@ -78,13 +78,6 @@ class _ChannelScreenState extends State<ChannelScreen>
                 body: SafeArea(
                   child: Column(
                     children: [
-                      //TODO: message
-                      // p.Selector<ChannelViewModel, List<BaseMessage>>(
-                      //   selector: (_, model) => model.messages,
-                      //   builder: (c, msgs, child) {
-                      //     return _buildContent();
-                      //   },
-                      // ),
                       Consumer<ChannelViewModel>(
                         builder: (context, value, child) {
                           return _buildContent();
@@ -207,77 +200,94 @@ class _ChannelScreenState extends State<ChannelScreen>
     return Expanded(
       child: Container(
         color: Colors.white,
-        child: ListView.builder(
+        child: ListView.custom(
           controller: model.lstController,
-          itemCount: model.itemCount,
           shrinkWrap: true,
           reverse: true,
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: EdgeInsets.only(top: 10, bottom: 10),
-          itemBuilder: (context, index) {
-            if (index == model.messages.length && model.hasNext) {
-              return Center(
-                child: Container(
-                  width: 30,
-                  height: 30,
-                  child: CircularProgressIndicator(),
-                ),
-              );
-            }
+          childrenDelegate: SliverChildBuilderDelegate(
+            (BuildContext context, int index) {
 
-            final message = model.messages[index];
-            final prev = (index < model.messages.length - 1)
-                ? model.messages[index + 1]
-                : null;
-            final next = index == 0 ? null : model.messages[index - 1];
+              //TODO Include when model.messages doesn't have length
+              if(model.messages.length == 0)
+                {
+                  return Container();
+                }
 
-            if (message is FileMessage) {
-              return FileMessageItem(
-                curr: message,
-                prev: prev,
-                next: next,
-                model: model,
-                isMyMessage: message.isMyMessage,
-                onPress: (pos) {
-                  //
-                },
-                onLongPress: (pos) {
-                  model.showMessageMenu(
-                    context: context,
-                    message: message,
-                    pos: pos,
-                  );
-                },
-              );
-            } else if (message is AdminMessage) {
-              return AdminMessageItem(curr: message, model: model);
-            } else if (message is UserMessage) {
-              return UserMessageItem(
-                curr: message,
-                prev: prev,
-                next: next,
-                model: model,
-                isMyMessage: message.isMyMessage,
-                onPress: (pos) {
-                  //
-                },
-                onLongPress: (pos) {
-                  model.showMessageMenu(
-                    context: context,
-                    message: message,
-                    pos: pos,
-                  );
-                },
-              );
-            } else {
-              //undefined message type
-              return Container();
-            }
-          },
+              if (index == model.messages.length && model.hasNext) {
+                return Center(
+                  child: Container(
+                    width: 30,
+                    height: 30,
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
+
+              final message = model.messages[index];
+              final prev = (index < model.messages.length - 1)
+                  ? model.messages[index + 1]
+                  : null;
+              final next = index == 0 ? null : model.messages[index - 1];
+
+              if (message is FileMessage) {
+                return FileMessageItem(
+                  curr: message,
+                  prev: prev,
+                  next: next,
+                  model: model,
+                  isMyMessage: message.isMyMessage,
+                  onPress: (pos) {
+                    //
+                  },
+                  onLongPress: (pos) {
+                    model.showMessageMenu(
+                      context: context,
+                      message: message,
+                      pos: pos,
+                    );
+                  },
+                );
+              } else if (message is AdminMessage) {
+                return AdminMessageItem(curr: message, model: model);
+              } else if (message is UserMessage) {
+                return UserMessageItem(
+                  curr: message,
+                  prev: prev,
+                  next: next,
+                  model: model,
+                  isMyMessage: message.isMyMessage,
+                  onPress: (pos) {
+                    //
+                  },
+                  onLongPress: (pos) {
+                    model.showMessageMenu(
+                      context: context,
+                      message: message,
+                      pos: pos,
+                    );
+                  },
+                );
+              } else {
+                //undefined message type
+                return Container();
+              }
+            },
+            findChildIndexCallback: (key) {
+              //TODO
+              print('KEY: ');
+              print(key);
+              return null;
+            },
+          ),
         ),
       ),
     );
     // });
     // );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

@@ -29,9 +29,16 @@ class _ChannelListScreenState extends State<ChannelListScreen>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
+    //TODO this is triggered
     if (state == AppLifecycleState.resumed) {
       model.loadChannelList(reload: true);
     }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance?.removeObserver(this);
+    super.dispose();
   }
 
   @override

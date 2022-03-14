@@ -43,16 +43,26 @@ class FileMessageItem extends MessageItem {
                 fit: BoxFit.cover,
                 imageUrl: (curr as FileMessage).secureUrl ??
                     (curr as FileMessage).url,
-                placeholder: (context, url) => Container(
-                  color: SBColors.primary_300,
-                  child: Center(
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  ),
+                progressIndicatorBuilder: (context, url, downloadProgress) =>
+                    Container(
                   width: 30,
                   height: 30,
+                  child: Center(
+                    child: CircularProgressIndicator(
+                        value: downloadProgress.progress),
+                  ),
                 ),
+
+                // placeholder: (context, url) => Container(
+                //   color: SBColors.primary_300,
+                //   child: Center(
+                //     child: CircularProgressIndicator(
+                //       valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                //     ),
+                //   ),
+                //   width: 30,
+                //   height: 30,
+                // ),
                 errorWidget: (context, url, error) => Icon(Icons.error),
               ),
       );
